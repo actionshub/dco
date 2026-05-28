@@ -4,6 +4,10 @@ inputs:
   commits:
     description: 'commits in json format'
     required: true
+  allow-obvious-fix-label:
+    description: 'Label name that, when present on the PR, bypasses DCO requirement'
+    required: false
+    default: ''
 runs:
   using: 'node12'
   main: 'index.js'
