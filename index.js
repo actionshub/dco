@@ -11,6 +11,11 @@ async function main() {
     const commitsString = core.getInput('commits')
     const commits = JSON.parse(commitsString)
 
+    const allowLabel = core.getInput('allow-obvious-fix-label')
+    if (allowLabel && pr.labels && pr.labels.some(label => label.name === allowLabel)) {
+      return
+    }
+
     const dcoFailed = await getDcoStatus(commits, () => true, pr.html_url)
     if (dcoFailed.length == 0) return
 
