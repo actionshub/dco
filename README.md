@@ -3,11 +3,9 @@
 [![Build](
 https://github.com/actionshub/dco/actions/workflows/build.yaml/badge.svg
 )](https://github.com/actionshub/dco/actions/workflows/build.yaml)
-
 [![CodeQL](
 https://github.com/actionshub/dco/actions/workflows/codeql.yml/badge.svg
 )](https://github.com/actionshub/dco/actions/workflows/codeql.yml)
-
 [![Lint](
 https://github.com/actionshub/dco/actions/workflows/lint.yaml/badge.svg
 )](https://github.com/actionshub/dco/actions/workflows/lint.yaml)
