@@ -16,6 +16,8 @@ Certificate of Origin (DCO) information
 *NOTE*: This is a fork of [tim-actions/dco](https://github.com/tim-actions/dco),
 which is no longer maintained.
 
+test
+
 ## Usage
 
 Add .github/workflows/sanity-check.yml with the following:
