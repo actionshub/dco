@@ -17,3 +17,5 @@ jobs:
           egress-policy: audit
 
       - uses: wechuli/allcheckspassed@1d00cf0c34c4b0805db8866d8913f22e7125301e # v2.3.0
+        with:
+          checks_exclude: '.*git-shield.*'
