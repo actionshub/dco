@@ -35,8 +35,6 @@ import require$$1$6 from 'node:dns';
 import require$$5$3, { StringDecoder } from 'string_decoder';
 import * as child from 'child_process';
 import { setTimeout as setTimeout$1 } from 'timers';
-import require$$2$1 from './libs/helper.js';
-import require$$3 from './libs/dco.js';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -35448,6 +35446,163 @@ var github = /*#__PURE__*/Object.freeze({
 
 var require$$1 = /*@__PURE__*/getAugmentedNamespace(github);
 
+var helper;
+var hasRequiredHelper;
+
+function requireHelper () {
+	if (hasRequiredHelper) return helper;
+	hasRequiredHelper = 1;
+	helper = {
+	  getOutput(commitInfos) {
+	    const lines = commitInfos.map(info => `  ${info.sha}    ${info.message}`);
+
+	    return `The SoB (DCO) check failed
+
+${lines.join('\n')}
+
+  What should I do to fix it ?
+
+  All proposed commits should include a Signed-off-by: <your-name> <your-email-address> line in their commit message.
+  This is most conveniently done by using --signoff (-s) when running git commit.`
+
+	  },
+	};
+	return helper;
+}
+
+var emailValidator = {};
+
+var hasRequiredEmailValidator;
+
+function requireEmailValidator () {
+	if (hasRequiredEmailValidator) return emailValidator;
+	hasRequiredEmailValidator = 1;
+
+	var tester = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
+	// Thanks to:
+	// http://fightingforalostcause.net/misc/2006/compare-email-regex.php
+	// http://thedailywtf.com/Articles/Validating_Email_Addresses.aspx
+	// http://stackoverflow.com/questions/201323/what-is-the-best-regular-expression-for-validating-email-addresses/201378#201378
+	emailValidator.validate = function(email)
+	{
+		if (!email)
+			return false;
+			
+		if(email.length>254)
+			return false;
+
+		var valid = tester.test(email);
+		if(!valid)
+			return false;
+
+		// Further checking of some things regex can't handle
+		var parts = email.split("@");
+		if(parts[0].length>64)
+			return false;
+
+		var domainParts = parts[1].split(".");
+		if(domainParts.some(function(part) { return part.length>63; }))
+			return false;
+
+		return true;
+	};
+	return emailValidator;
+}
+
+var dco;
+var hasRequiredDco;
+
+function requireDco () {
+	if (hasRequiredDco) return dco;
+	hasRequiredDco = 1;
+	const validator = requireEmailValidator();
+
+	// Returns a list containing failed commit error messages
+	// If commits aren't properly signed signed off
+	// Otherwise returns an empty list
+	dco = async function(commits, isRequiredFor, prURL) {
+	  let failed = [];
+
+	  for (const { commit, author, parents, sha } of commits) {
+	    const isMerge = parents && parents.length > 1;
+	    const signoffRequired = !author || await isRequiredFor(author.login);
+	    if (isMerge || (!signoffRequired && commit.verification.verified)) {
+	      continue
+	    } else if (author && author.type === 'Bot') {
+	      continue
+	    }
+
+	    const commitInfo = {
+	      sha,
+	      url: `${prURL}/commits/${sha}`,
+	      author: commit.author.name,
+	      committer: commit.committer.name,
+	      message: ''
+	    };
+
+	    const signoffs = getSignoffs(commit);
+
+	    if (signoffs.length === 0) {
+	      // no signoffs found
+	      if (signoffRequired) {
+	        commitInfo['message'] = `The sign-off is missing.`;
+	        failed.push(commitInfo);
+	      } else if (!commit.verification.verified) {
+	        commitInfo['message'] = `Commit by organization member is not verified.`;
+	        failed.push(commitInfo);
+	      }
+
+	      continue
+	    }
+
+	    const email = commit.author.email || commit.committer.email;
+	    if (!(validator.validate(email))) {
+	      commitInfo['message'] = `${email} is not a valid email address.`;
+	      failed.push(commitInfo);
+	      continue
+	    }
+
+	    const authors = [commit.author.name.toLowerCase(), commit.committer.name.toLowerCase()];
+	    const emails = [commit.author.email.toLowerCase(), commit.committer.email.toLowerCase()];
+	    if (signoffs.length === 1) {
+	      // commit contains one signoff
+	      const sig = signoffs[0];
+	      if (!(authors.includes(sig.name.toLowerCase())) || !(emails.includes(sig.email.toLowerCase()))) {
+	        commitInfo['message'] = `Expected "${commit.author.name} <${commit.author.email}>", but got "${sig.name} <${sig.email}>".`;
+	        failed.push(commitInfo);
+	      }
+	    } else {
+	      // commit contains multiple signoffs
+	      const valid = signoffs.filter(
+	        signoff => authors.includes(signoff.name.toLowerCase()) && emails.includes(signoff.email.toLowerCase())
+	      );
+
+	      if (valid.length === 0) {
+	        const got = signoffs.map(sig => `"${sig.name} <${sig.email}>"`).join(', ');
+	        commitInfo['message'] = `Can not find "${commit.author.name} <${commit.author.email}>", in [${got}].`;
+	        failed.push(commitInfo);
+	      }
+	    } // end if
+	  } // end for
+	  return failed
+	};
+
+	function getSignoffs (commit) {
+	  const regex = /^Signed-off-by: (.*) <(.*)>$/img;
+	  let matches = [];
+	  let match;
+	  while ((match = regex.exec(commit.message)) !== null) {
+	    matches.push({
+	      name: match[1],
+	      email: match[2]
+	    });
+	  }
+
+	  return matches
+	}
+	return dco;
+}
+
 var hasRequiredSrc;
 
 function requireSrc () {
@@ -35456,8 +35611,8 @@ function requireSrc () {
 	const core = require$$0;
 	const github = require$$1;
 
-	const helper = require$$2$1;
-	const getDcoStatus = require$$3;
+	const helper = requireHelper();
+	const getDcoStatus = requireDco();
 
 	async function main() {
 	  try {
