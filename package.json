@@ -1,7 +1,7 @@
 {
   "name": "dco",
   "version": "1.0.0",
-  "description": "",
+  "description": "DCO check for PRs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,5 +12,10 @@
     "@actions/core": "^3.0.1",
     "@actions/github": "^9.1.1",
     "email-validator": "^2.0.4"
+  },
+    "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "rollup": "^4.61.1"
   }
 }
