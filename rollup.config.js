@@ -8,7 +8,7 @@ export default {
     format: 'es'
   },
   plugins: [
-    resolve({ preferBuiltins: true, exportConditions: ['node'] }),
+    resolve({ preferBuiltins: true, exportConditions: ['node', 'import', 'default'] }),
     commonjs()
   ],
   onwarn(warning, warn) {
