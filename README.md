@@ -1,8 +1,13 @@
 # dco-check
 
-A GitHub Action that verifies commits in pull-request all include Developer Certificate of Origin (DCO) information
+A GitHub Action that verifies commits in pull-request all include Developer
+Certificate of Origin (DCO) information
+
+NOTE: This is a fork of [tim-actions/dco](https://github.com/tim-actions/dco),
+which is no longer maintained.
 
 ## Usage
+
 Add .github/workflows/sanity-check.yml with the following:
 
 ```

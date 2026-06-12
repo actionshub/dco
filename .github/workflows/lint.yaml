@@ -19,3 +19,5 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: MarkdownLint mdl Action
         uses: actionshub/markdownlint@6c82ff529253530dfbf75c37570876c52692835f # 3.1.4
+        with:
+          filesToIgnoreRegex: "node_modules\\/.*"
