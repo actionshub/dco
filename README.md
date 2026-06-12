@@ -20,7 +20,7 @@ which is no longer maintained.
 
 Add .github/workflows/sanity-check.yml with the following:
 
-```
+```markdown
 name: DCO
 on: [pull_request]
 
