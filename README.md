@@ -1,9 +1,21 @@
 # dco-check
 
+[![Build](
+https://github.com/actionshub/dco/actions/workflows/build.yaml/badge.svg
+)](https://github.com/actionshub/dco/actions/workflows/build.yaml)
+
+[![CodeQL](
+https://github.com/actionshub/dco/actions/workflows/codeql.yml/badge.svg
+)](https://github.com/actionshub/dco/actions/workflows/codeql.yml)
+
+[![Lint](
+https://github.com/actionshub/dco/actions/workflows/lint.yaml/badge.svg
+)](https://github.com/actionshub/dco/actions/workflows/lint.yaml)
+
 A GitHub Action that verifies commits in pull-request all include Developer
 Certificate of Origin (DCO) information
 
-NOTE: This is a fork of [tim-actions/dco](https://github.com/tim-actions/dco),
+*NOTE*: This is a fork of [tim-actions/dco](https://github.com/tim-actions/dco),
 which is no longer maintained.
 
 ## Usage
@@ -11,7 +23,7 @@ which is no longer maintained.
 Add .github/workflows/sanity-check.yml with the following:
 
 ```
-name: Sanity check
+name: DCO
 on: [pull_request]
 
 jobs:
@@ -21,11 +33,11 @@ jobs:
     steps:
     - name: Get PR Commits
       id: 'get-pr-commits'
-      uses: tim-actions/get-pr-commits@master
+      uses: actionshub/get-pr-commits@main
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
     - name: DCO Check
-      uses: tim-actions/dco@master
+      uses: actionshub/dco@main
       with:
         commits: ${{ steps.get-pr-commits.outputs.commits }}
 ```
