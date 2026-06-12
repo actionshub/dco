@@ -1,4 +1,4 @@
-name: 'dco-check'
+name: 'dco-check-action'
 description: 'A GitHub Action that verifies commits in pull-request all include Developer Certificate of Origin (DCO) information'
 inputs:
   commits:
